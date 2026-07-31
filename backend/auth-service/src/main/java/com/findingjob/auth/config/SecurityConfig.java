@@ -44,6 +44,7 @@ public class SecurityConfig {
                                 "/actuator/health"
                         ).permitAll()
                         // Admin-only endpoints
+                        .requestMatchers("/api/auth/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         // All other endpoints require authentication
                         .anyRequest().authenticated()

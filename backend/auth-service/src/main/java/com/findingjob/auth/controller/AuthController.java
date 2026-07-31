@@ -6,6 +6,7 @@ import com.findingjob.auth.dto.RoleSelectionRequest;
 import com.findingjob.auth.entity.User;
 import com.findingjob.auth.repository.UserRepository;
 import com.findingjob.auth.service.AuthService;
+import com.findingjob.auth.service.StatsService;
 import com.findingjob.common.dto.ApiResponse;
 import com.findingjob.common.security.JwtUserPrincipal;
 import io.swagger.v3.oas.annotations.Operation;
@@ -23,10 +24,12 @@ public class AuthController {
 
     private final AuthService authService;
     private final UserRepository userRepository;
+    private final StatsService statsService;
 
-    public AuthController(AuthService authService, UserRepository userRepository) {
+    public AuthController(AuthService authService, UserRepository userRepository, StatsService statsService) {
         this.authService = authService;
         this.userRepository = userRepository;
+        this.statsService = statsService;
     }
 
     @GetMapping("/oauth/{provider}/authorize")
@@ -89,5 +92,11 @@ public class AuthController {
                 "role", user.getRole() != null ? user.getRole().name() : null,
                 "status", user.getStatus().name()
         ));
+    }
+
+    @GetMapping("/admin/stats")
+    @Operation(summary = "Get platform stats (admin only)")
+    public ApiResponse<Map<String, Object>> getPlatformStats() {
+        return ApiResponse.success(statsService.getPlatformStats());
     }
 }
