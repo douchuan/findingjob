@@ -38,6 +38,7 @@ public class SecurityConfig {
                                 "/api/auth/oauth/**",
                                 "/api/auth/phone-login",
                                 "/api/auth/select-role",
+                                "/api/auth/dev-login",
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
                                 "/swagger-ui.html",

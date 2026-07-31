@@ -1,24 +1,17 @@
 import React, { useState } from 'react';
-import { Button, Form, Input, Space, Card, Segmented, Result, Typography } from 'antd';
+import { Button, Form, Input, Space, Card, Segmented, message } from 'antd';
 import { GithubOutlined } from '@ant-design/icons';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../stores/authStore';
 import { post } from '../api';
 import type { UserRole } from '../types';
 
-const { Text } = Typography;
-
 export const LoginPage: React.FC = () => {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
   const { setToken, setUser } = useAuthStore();
+  const [selectedRole, setSelectedRole] = useState<string>('JOBSEEKER');
 
-  const handleGithubLogin = () => {
-    // MVP: navigate directly to callback (no real OAuth)
-    window.location.href = 'http://localhost:8001/api/auth/oauth/github/callback';
-  };
-
-  const onFinish = async (values: { phone: string; code: string }) => {
+  const handleDevLogin = async () => {
     try {
       const response = await post<{
         token: string;
@@ -27,26 +20,25 @@ export const LoginPage: React.FC = () => {
         userId: number;
         name: string;
         avatar: string;
-      }>('/auth/phone-login', values);
+      }>('/auth/dev-login', {
+        name: `dev_${selectedRole.toLowerCase()}`,
+        role: selectedRole,
+      });
 
-      if (response.data.roleSelected) {
-        setToken(response.data.token);
-        setUser({
-          id: response.data.userId,
-          phone: values.phone,
-          name: response.data.name,
-          avatar: response.data.avatar,
-          role: response.data.role as UserRole,
-          status: 'ACTIVE',
-          createdAt: new Date().toISOString(),
-        });
-        navigate('/');
-      } else {
-        // Need to select role
-        navigate(`/select-role?userId=${response.data.userId}&name=${response.data.name}`);
-      }
+      setToken(response.data.token);
+      setUser({
+        id: response.data.userId,
+        phone: null,
+        name: response.data.name,
+        avatar: response.data.avatar,
+        role: response.data.role as UserRole,
+        status: 'ACTIVE',
+        createdAt: new Date().toISOString(),
+      });
+      message.success(`已以 ${selectedRole} 角色登录`);
+      navigate('/');
     } catch (error) {
-      console.error('Login failed:', error);
+      message.error('登录失败，请确认后端已启动');
     }
   };
 
@@ -58,38 +50,54 @@ export const LoginPage: React.FC = () => {
           以技能为核心的求职平台
         </p>
 
+        {/* Dev login */}
+        <Card size="small" style={{ marginBottom: 24, background: '#fffbe6' }}>
+          <p style={{ textAlign: 'center', margin: '0 0 12px', color: '#888', fontSize: 12 }}>
+            开发模式 · 选择角色直接登录
+          </p>
+          <Segmented
+            value={selectedRole}
+            onChange={setSelectedRole}
+            block
+            options={[
+              { label: '👤 求职者', value: 'JOBSEEKER' },
+              { label: '💼 HR', value: 'HR' },
+              { label: '🛡️ 管理员', value: 'ADMIN' },
+            ]}
+            style={{ marginBottom: 12 }}
+          />
+          <Button type="primary" block size="large" onClick={handleDevLogin}>
+            直接进入 ({selectedRole === 'JOBSEEKER' ? '求职者' : selectedRole === 'HR' ? 'HR' : '管理员'})
+          </Button>
+        </Card>
+
+        <div style={{ textAlign: 'center', margin: '16px 0', color: '#999' }}>— 或 —</div>
+
         <Button
           icon={<GithubOutlined />}
           block
           size="large"
-          type="primary"
-          onClick={handleGithubLogin}
-          style={{ marginBottom: 24 }}
+          style={{ marginBottom: 16 }}
+          onClick={() => message.info('MVP 阶段请使用上方开发模式登录')}
         >
-          GitHub 登录
+          GitHub 登录（未接入）
         </Button>
 
-        <div style={{ textAlign: 'center', margin: '16px 0', color: '#999' }}>— 或 —</div>
-
-        <Form onFinish={onFinish}>
-          <Form.Item
-            name="phone"
-            rules={[
-              { required: true, message: '请输入手机号' },
-              { pattern: /^1[3-9]\d{9}$/, message: '手机号格式不正确' },
-            ]}
-          >
+        <Form
+          onFinish={() => message.info('MVP 阶段请使用上方开发模式登录')}
+        >
+          <Form.Item name="phone">
             <Input placeholder="手机号" size="large" />
           </Form.Item>
-          <Form.Item name="code" rules={[{ required: true, message: '请输入验证码' }]}>
+          <Form.Item name="code">
             <Space.Compact style={{ width: '100%' }}>
-              <Input placeholder="验证码（任意6位）" size="large" />
+              <Input placeholder="验证码" size="large" />
               <Button type="primary">发送验证码</Button>
             </Space.Compact>
           </Form.Item>
           <Form.Item>
-            <Button type="primary" htmlType="submit" block size="large">
-              登录 / 注册
+            <Button htmlType="submit" block size="large" disabled>
+              手机登录（未接入）
             </Button>
           </Form.Item>
         </Form>

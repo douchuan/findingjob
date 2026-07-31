@@ -1,5 +1,6 @@
 package com.findingjob.auth.controller;
 
+import com.findingjob.auth.dto.DevLoginRequest;
 import com.findingjob.auth.dto.LoginResponse;
 import com.findingjob.auth.dto.PhoneLoginRequest;
 import com.findingjob.auth.dto.RoleSelectionRequest;
@@ -9,10 +10,14 @@ import com.findingjob.auth.service.AccountDeletionService;
 import com.findingjob.auth.service.AuthService;
 import com.findingjob.auth.service.StatsService;
 import com.findingjob.common.dto.ApiResponse;
+import com.findingjob.common.enums.UserRole;
+import com.findingjob.common.enums.UserStatus;
 import com.findingjob.common.security.JwtUserPrincipal;
+import com.findingjob.common.security.JwtUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,14 +32,49 @@ public class AuthController {
     private final UserRepository userRepository;
     private final StatsService statsService;
     private final AccountDeletionService accountDeletionService;
+    private final JwtUtil jwtUtil;
 
     public AuthController(AuthService authService, UserRepository userRepository,
-                          StatsService statsService, AccountDeletionService accountDeletionService) {
+                          StatsService statsService, AccountDeletionService accountDeletionService,
+                          JwtUtil jwtUtil) {
         this.authService = authService;
         this.userRepository = userRepository;
         this.statsService = statsService;
         this.accountDeletionService = accountDeletionService;
+        this.jwtUtil = jwtUtil;
     }
+
+    // === Dev-only: direct login for testing ===
+
+    @PostMapping("/dev-login")
+    @Profile("dev")
+    @Operation(summary = "Dev login — bypasses OAuth and SMS (dev profile only)")
+    public ApiResponse<LoginResponse> devLogin(@RequestBody DevLoginRequest request) {
+        UserRole role = UserRole.valueOf(request.getRole().toUpperCase());
+
+        // Find or create user
+        User user = userRepository.findByName(request.getName())
+                .orElseGet(() -> {
+                    User u = new User();
+                    u.setName(request.getName());
+                    u.setRole(role);
+                    u.setStatus(UserStatus.ACTIVE);
+                    return userRepository.save(u);
+                });
+
+        // If role wasn't set (existing user from role selection flow), set it
+        if (user.getRole() == null) {
+            user.setRole(role);
+            userRepository.save(user);
+        }
+
+        String token = jwtUtil.generateToken(user.getId(), user.getRole(), user.getPhone());
+        return ApiResponse.success(new LoginResponse(
+                token, true, role.name(), user.getId(), user.getName(), user.getAvatar()
+        ));
+    }
+
+    // === Production endpoints ===
 
     @GetMapping("/oauth/{provider}/authorize")
     @Operation(summary = "Get OAuth authorize URL")
@@ -51,7 +91,6 @@ public class AuthController {
             @RequestParam(required = false) String state,
             jakarta.servlet.http.HttpServletResponse response) throws java.io.IOException {
 
-        // MVP: without real OAuth credentials, simulate a successful login
         String mockUserId = "mock-" + provider + "-" + System.currentTimeMillis();
         String mockUsername = "user_" + provider;
         String mockAvatar = "";

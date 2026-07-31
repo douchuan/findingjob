@@ -25,6 +25,7 @@ services:
     ports:
       - "8001:8001"
     environment:
+      SPRING_PROFILES_ACTIVE: dev
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/findingjob_auth
       SPRING_DATASOURCE_USERNAME: findingjob
       SPRING_DATASOURCE_PASSWORD: findingjob
