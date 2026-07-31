@@ -4,6 +4,7 @@ import { UserOutlined, UploadOutlined, PlusOutlined, DeleteOutlined, GithubOutli
 import dayjs from 'dayjs';
 import { useAuthStore } from '../stores/authStore';
 import { get, put, post, del } from '../api';
+import { useAuthStore } from '../stores/authStore';
 import type { UploadProps } from 'antd';
 
 const { Text, Title } = Typography;
@@ -104,6 +105,21 @@ export const ProfilePage: React.FC = () => {
     } catch (error) {
       message.error('加载个人资料失败');
     }
+  };
+
+  const handleDeleteAccount = async () => {
+    Modal.confirm({
+      title: '确认注销账号',
+      content: '申请后7天内可撤销。7天后您的个人信息将被彻底删除，评价将匿名化保留。',
+      onOk: async () => {
+        try {
+          await post('/auth/me/delete', {});
+          message.success('注销申请已提交，7天冷静期开始');
+        } catch {
+          message.error('申请失败');
+        }
+      },
+    });
   };
 
   const handleSaveProfile = async () => {
@@ -315,6 +331,14 @@ export const ProfilePage: React.FC = () => {
             )}
           />
         )}
+      </Card>
+
+      {/* Account Deletion */}
+      <Card title="账号设置" style={{ marginTop: 16 }}>
+        <Button danger onClick={handleDeleteAccount}>申请注销账号</Button>
+        <Text type="secondary" style={{ marginLeft: 12 }}>
+          申请后7天冷静期，期间可撤销
+        </Text>
       </Card>
 
       {/* Add Skill Modal */}

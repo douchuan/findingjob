@@ -9,6 +9,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -330,5 +332,88 @@ public class ProfileService {
         dto.setUrl(project.getUrl());
         dto.setIsOwner(project.getIsOwner());
         return dto;
+    }
+
+    // === Search (Ticket 05) ===
+
+    /**
+     * Search jobseekers by skill keyword, experience range, and expected position.
+     * Returns anonymized public info with skill matches.
+     */
+    public List<JobseekerSearchResult> searchJobseekers(
+            String skillKeyword, Integer minExperience, Integer maxExperience, String positionKeyword) {
+
+        // Find matching skill IDs
+        List<Long> matchingSkillIds;
+        if (skillKeyword != null && !skillKeyword.isEmpty()) {
+            matchingSkillIds = skillTagRepository.findByNameContainingIgnoreCase(skillKeyword)
+                    .stream().map(SkillTag::getId).toList();
+        } else {
+            matchingSkillIds = List.of();
+        }
+
+        // Find all profiles with matching skills
+        List<UserSkill> matchingSkills;
+        if (!matchingSkillIds.isEmpty()) {
+            matchingSkills = userSkillRepository.findAll().stream()
+                    .filter(us -> matchingSkillIds.contains(us.getSkillId()))
+                    .toList();
+        } else {
+            matchingSkills = userSkillRepository.findAll();
+        }
+
+        // Group by user and build results
+        Map<Long, List<UserSkill>> byUser = matchingSkills.stream()
+                .collect(Collectors.groupingBy(UserSkill::getUserId));
+
+        return byUser.entrySet().stream()
+                .map(entry -> {
+                    Long userId = entry.getKey();
+                    List<UserSkill> skills = entry.getValue();
+
+                    JobseekerProfile profile = profileRepository.findByUserId(userId).orElse(null);
+                    if (profile == null) return null;
+
+                    // Filter by experience
+                    if (minExperience != null && (profile.getYearsOfExperience() == null || profile.getYearsOfExperience() < minExperience))
+                        return null;
+                    if (maxExperience != null && (profile.getYearsOfExperience() == null || profile.getYearsOfExperience() > maxExperience))
+                        return null;
+
+                    // Filter by position
+                    if (positionKeyword != null && !positionKeyword.isEmpty()) {
+                        String pos = profile.getExpectedPosition();
+                        if (pos == null || !pos.toLowerCase().contains(positionKeyword.toLowerCase()))
+                            return null;
+                    }
+
+                    // Build result
+                    List<SkillTag> skillTags = skills.stream()
+                            .map(us -> skillTagRepository.findById(us.getSkillId()).orElse(null))
+                            .filter(Objects::nonNull)
+                            .toList();
+
+                    long totalVerified = skills.stream()
+                            .mapToLong(UserSkill::getVerifiedCount)
+                            .sum();
+
+                    JobseekerSearchResult result = new JobseekerSearchResult();
+                    result.setUserId(userId);
+                    // Anonymize name
+                    String name = profile.getName();
+                    result.setName(name != null && name.length() > 1 ? name.charAt(0) + "**" : name);
+                    result.setAvatar(profile.getAvatar());
+                    result.setYearsOfExperience(profile.getYearsOfExperience());
+                    result.setExpectedPosition(profile.getExpectedPosition());
+                    result.setSkillNames(skillTags.stream().map(SkillTag::getName).toList());
+                    result.setTotalVerifiedSkills(totalVerified);
+                    return result;
+                })
+                .filter(Objects::nonNull)
+                .sorted((a, b) -> Long.compare(
+                        b.getTotalVerifiedSkills() != null ? b.getTotalVerifiedSkills() : 0,
+                        a.getTotalVerifiedSkills() != null ? a.getTotalVerifiedSkills() : 0
+                ))
+                .toList();
     }
 }

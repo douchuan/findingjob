@@ -22,13 +22,16 @@ spring:
 jwt:
   secret: ${JWT_SECRET:findingjob-default-secret-key-change-in-production-2026}
 
-resilience4j:
-  ratelimiter:
-    instances:
-      rating:
-        limit-for-period: 5
-        limit-refresh-period: 24h
-        timeout-duration: 0
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
+      probes:
+        enabled: true
 
 springdoc:
   api-docs:

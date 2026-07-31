@@ -160,4 +160,16 @@ public class ProfileController {
             @RequestBody List<GitHubProjectDto> projects) {
         return ApiResponse.success(profileService.syncGitHubProjects(principal.getUserId(), projects));
     }
+
+    // === Search (Ticket 05) ===
+
+    @GetMapping("/search")
+    @Operation(summary = "Search jobseekers (HR only)")
+    public ApiResponse<List<JobseekerSearchResult>> searchJobseekers(
+            @RequestParam(required = false) String skill,
+            @RequestParam(required = false) Integer minExp,
+            @RequestParam(required = false) Integer maxExp,
+            @RequestParam(required = false) String position) {
+        return ApiResponse.success(profileService.searchJobseekers(skill, minExp, maxExp, position));
+    }
 }

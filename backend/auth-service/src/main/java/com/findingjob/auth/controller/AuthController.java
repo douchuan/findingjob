@@ -5,6 +5,7 @@ import com.findingjob.auth.dto.PhoneLoginRequest;
 import com.findingjob.auth.dto.RoleSelectionRequest;
 import com.findingjob.auth.entity.User;
 import com.findingjob.auth.repository.UserRepository;
+import com.findingjob.auth.service.AccountDeletionService;
 import com.findingjob.auth.service.AuthService;
 import com.findingjob.auth.service.StatsService;
 import com.findingjob.common.dto.ApiResponse;
@@ -25,11 +26,14 @@ public class AuthController {
     private final AuthService authService;
     private final UserRepository userRepository;
     private final StatsService statsService;
+    private final AccountDeletionService accountDeletionService;
 
-    public AuthController(AuthService authService, UserRepository userRepository, StatsService statsService) {
+    public AuthController(AuthService authService, UserRepository userRepository,
+                          StatsService statsService, AccountDeletionService accountDeletionService) {
         this.authService = authService;
         this.userRepository = userRepository;
         this.statsService = statsService;
+        this.accountDeletionService = accountDeletionService;
     }
 
     @GetMapping("/oauth/{provider}/authorize")
@@ -98,5 +102,17 @@ public class AuthController {
     @Operation(summary = "Get platform stats (admin only)")
     public ApiResponse<Map<String, Object>> getPlatformStats() {
         return ApiResponse.success(statsService.getPlatformStats());
+    }
+
+    @PostMapping("/me/delete")
+    @Operation(summary = "Request account deletion (7-day cooling)")
+    public ApiResponse<Map<String, Object>> requestDeletion(@AuthenticationPrincipal JwtUserPrincipal principal) {
+        return ApiResponse.success(accountDeletionService.requestDeletion(principal.getUserId()));
+    }
+
+    @PostMapping("/me/delete/cancel")
+    @Operation(summary = "Cancel pending account deletion")
+    public ApiResponse<Map<String, Object>> cancelDeletion(@AuthenticationPrincipal JwtUserPrincipal principal) {
+        return ApiResponse.success(accountDeletionService.cancelDeletion(principal.getUserId()));
     }
 }
