@@ -4,6 +4,8 @@ server:
 spring:
   application:
     name: storage-service
+  main:
+    allow-bean-definition-overriding: true
   datasource:
     url: jdbc:postgresql://localhost:5432/findingjob_storage
     username: findingjob
@@ -25,6 +27,17 @@ jwt:
 storage:
   type: ${STORAGE_TYPE:local}
   local-path: ${STORAGE_LOCAL_PATH:./uploads}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
+      probes:
+        enabled: true
 
 springdoc:
   api-docs:

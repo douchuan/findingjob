@@ -4,6 +4,8 @@ server:
 spring:
   application:
     name: auth-service
+  main:
+    allow-bean-definition-overriding: true
   datasource:
     url: jdbc:postgresql://localhost:5432/findingjob_auth
     username: findingjob

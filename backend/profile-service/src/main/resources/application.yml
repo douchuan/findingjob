@@ -4,6 +4,8 @@ server:
 spring:
   application:
     name: profile-service
+  main:
+    allow-bean-definition-overriding: true
   datasource:
     url: jdbc:postgresql://localhost:5432/findingjob_profile
     username: findingjob
