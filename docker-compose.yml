@@ -1,0 +1,169 @@
+services:
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: findingjob
+      POSTGRES_PASSWORD: findingjob
+      POSTGRES_MULTIPLE_DATABASES: findingjob_auth,findingjob_profile,findingjob_company,findingjob_rating,findingjob_resume,findingjob_storage,findingjob_notification
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./docker/init-db.sh:/docker-entrypoint-initdb.d/init-db.sh
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U findingjob"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  auth-service:
+    build:
+      context: .
+      dockerfile: backend/auth-service/Dockerfile
+    ports:
+      - "8001:8001"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/findingjob_auth
+      SPRING_DATASOURCE_USERNAME: findingjob
+      SPRING_DATASOURCE_PASSWORD: findingjob
+      JWT_SECRET: ${JWT_SECRET:-dev-secret-key-change-in-production}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/actuator/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  profile-service:
+    build:
+      context: .
+      dockerfile: backend/profile-service/Dockerfile
+    ports:
+      - "8002:8002"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/findingjob_profile
+      SPRING_DATASOURCE_USERNAME: findingjob
+      SPRING_DATASOURCE_PASSWORD: findingjob
+      JWT_SECRET: ${JWT_SECRET:-dev-secret-key-change-in-production}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8002/actuator/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  company-service:
+    build:
+      context: .
+      dockerfile: backend/company-service/Dockerfile
+    ports:
+      - "8003:8003"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/findingjob_company
+      SPRING_DATASOURCE_USERNAME: findingjob
+      SPRING_DATASOURCE_PASSWORD: findingjob
+      JWT_SECRET: ${JWT_SECRET:-dev-secret-key-change-in-production}
+      STORAGE_TYPE: local
+      STORAGE_LOCAL_PATH: /uploads
+    volumes:
+      - storage-data:/uploads
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8003/actuator/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  rating-service:
+    build:
+      context: .
+      dockerfile: backend/rating-service/Dockerfile
+    ports:
+      - "8004:8004"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/findingjob_rating
+      SPRING_DATASOURCE_USERNAME: findingjob
+      SPRING_DATASOURCE_PASSWORD: findingjob
+      JWT_SECRET: ${JWT_SECRET:-dev-secret-key-change-in-production}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8004/actuator/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  resume-service:
+    build:
+      context: .
+      dockerfile: backend/resume-service/Dockerfile
+    ports:
+      - "8005:8005"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/findingjob_resume
+      SPRING_DATASOURCE_USERNAME: findingjob
+      SPRING_DATASOURCE_PASSWORD: findingjob
+      JWT_SECRET: ${JWT_SECRET:-dev-secret-key-change-in-production}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8005/actuator/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  storage-service:
+    build:
+      context: .
+      dockerfile: backend/storage-service/Dockerfile
+    ports:
+      - "8006:8006"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/findingjob_storage
+      SPRING_DATASOURCE_USERNAME: findingjob
+      SPRING_DATASOURCE_PASSWORD: findingjob
+      JWT_SECRET: ${JWT_SECRET:-dev-secret-key-change-in-production}
+      STORAGE_TYPE: local
+      STORAGE_LOCAL_PATH: /uploads
+    volumes:
+      - storage-data:/uploads
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8006/actuator/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  notification-service:
+    build:
+      context: .
+      dockerfile: backend/notification-service/Dockerfile
+    ports:
+      - "8007:8007"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/findingjob_notification
+      SPRING_DATASOURCE_USERNAME: findingjob
+      SPRING_DATASOURCE_PASSWORD: findingjob
+      JWT_SECRET: ${JWT_SECRET:-dev-secret-key-change-in-production}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8007/actuator/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+volumes:
+  postgres-data:
+  storage-data:

@@ -1,0 +1,33 @@
+server:
+  port: 8002
+
+spring:
+  application:
+    name: profile-service
+  datasource:
+    url: jdbc:postgresql://localhost:5432/findingjob_profile
+    username: findingjob
+    password: findingjob
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        default_schema: profile
+    show-sql: false
+    open-in-view: false
+
+jwt:
+  secret: ${JWT_SECRET:findingjob-default-secret-key-change-in-production-2026}
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+
+logging:
+  level:
+    com.findingjob: DEBUG

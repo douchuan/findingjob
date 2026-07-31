@@ -1,0 +1,35 @@
+server:
+  port: 8001
+
+spring:
+  application:
+    name: auth-service
+  datasource:
+    url: jdbc:postgresql://localhost:5432/findingjob_auth
+    username: findingjob
+    password: findingjob
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        default_schema: auth
+    show-sql: false
+    open-in-view: false
+
+jwt:
+  secret: ${JWT_SECRET:findingjob-default-secret-key-change-in-production-2026}
+  expiration: 86400
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+
+logging:
+  level:
+    com.findingjob: DEBUG
+    org.springframework.security: DEBUG

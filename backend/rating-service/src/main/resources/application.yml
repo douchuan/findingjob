@@ -1,0 +1,41 @@
+server:
+  port: 8004
+
+spring:
+  application:
+    name: rating-service
+  datasource:
+    url: jdbc:postgresql://localhost:5432/findingjob_rating
+    username: findingjob
+    password: findingjob
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        default_schema: rating
+    show-sql: false
+    open-in-view: false
+
+jwt:
+  secret: ${JWT_SECRET:findingjob-default-secret-key-change-in-production-2026}
+
+resilience4j:
+  ratelimiter:
+    instances:
+      rating:
+        limit-for-period: 5
+        limit-refresh-period: 24h
+        timeout-duration: 0
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+
+logging:
+  level:
+    com.findingjob: DEBUG

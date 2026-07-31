@@ -1,0 +1,64 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: findingjob-ingress
+  namespace: findingjob
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/rate-limit: "100"
+    nginx.ingress.kubernetes.io/rate-limit-window: "1m"
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: api.findingjob.local
+      http:
+        paths:
+          - path: /api/auth
+            pathType: Prefix
+            backend:
+              service:
+                name: auth-service
+                port:
+                  number: 8001
+          - path: /api/profile
+            pathType: Prefix
+            backend:
+              service:
+                name: profile-service
+                port:
+                  number: 8002
+          - path: /api/company
+            pathType: Prefix
+            backend:
+              service:
+                name: company-service
+                port:
+                  number: 8003
+          - path: /api/rating
+            pathType: Prefix
+            backend:
+              service:
+                name: rating-service
+                port:
+                  number: 8004
+          - path: /api/resume
+            pathType: Prefix
+            backend:
+              service:
+                name: resume-service
+                port:
+                  number: 8005
+          - path: /api/storage
+            pathType: Prefix
+            backend:
+              service:
+                name: storage-service
+                port:
+                  number: 8006
+          - path: /api/notification
+            pathType: Prefix
+            backend:
+              service:
+                name: notification-service
+                port:
+                  number: 8007

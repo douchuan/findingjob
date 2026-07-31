@@ -1,0 +1,19 @@
+# FindJob — Dockerfile template for all Spring Boot services
+# Build with: mvn clean package -DskipTests && docker build -f backend/<service>/Dockerfile .
+
+FROM eclipse-temurin:17-jre-alpine
+
+WORKDIR /app
+
+ARG SERVICE_NAME
+COPY backend/${SERVICE_NAME}/target/${SERVICE_NAME}-*.jar app.jar
+
+RUN addgroup -S findingjob && adduser -S findingjob -G findingjob
+USER findingjob
+
+EXPOSE 8001
+
+HEALTHCHECK --interval=10s --timeout=3s --retries=5 \
+  CMD wget -qO- http://localhost:${SERVER_PORT:-8001}/actuator/health || exit 1
+
+ENTRYPOINT ["java", "-jar", "app.jar"]
