@@ -23,6 +23,33 @@ jwt:
   secret: ${JWT_SECRET:findingjob-default-secret-key-change-in-production-2026}
   expiration: 86400
 
+oauth:
+  github:
+    client-id: ${GITHUB_CLIENT_ID:mock-client-id}
+    client-secret: ${GITHUB_CLIENT_SECRET:mock-client-secret}
+    redirect-uri: http://localhost:8001/api/auth/oauth/github/callback
+  gitee:
+    client-id: ${GITEE_CLIENT_ID:mock-client-id}
+    client-secret: ${GITEE_CLIENT_SECRET:mock-client-secret}
+    redirect-uri: http://localhost:8001/api/auth/oauth/gitee/callback
+  wechat:
+    client-id: ${WECHAT_CLIENT_ID:}
+    client-secret: ${WECHAT_CLIENT_SECRET:}
+  alipay:
+    client-id: ${ALIPAY_CLIENT_ID:}
+    client-secret: ${ALIPAY_CLIENT_SECRET:}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
+      probes:
+        enabled: true
+
 springdoc:
   api-docs:
     path: /v3/api-docs
