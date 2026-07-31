@@ -121,15 +121,25 @@ A job platform that puts **skills at the center** — unlike traditional job sit
 ### Backend
 
 ```bash
-# Build all modules
-mvn clean compile
+# 1. Build all modules and package JARs
+mvn clean package -DskipTests
 
-# Run tests
+# 2. Run tests (optional)
 mvn test
 
-# Start all services with PostgreSQL
+# 3. Start all services with PostgreSQL
 docker compose up -d
 ```
+
+> **Apple Silicon users:** The base image is `eclipse-temurin:17-jre` (not `-alpine`),
+> which supports arm64. If `docker compose build` fails due to Docker Hub network issues,
+> pull the images first:
+>
+> ```bash
+> docker pull eclipse-temurin:17-jre
+> docker pull postgres:15-alpine
+> docker compose up -d
+> ```
 
 ### Frontend
 
