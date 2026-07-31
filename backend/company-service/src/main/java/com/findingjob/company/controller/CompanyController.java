@@ -74,6 +74,12 @@ public class CompanyController {
                 VerificationStatus.PENDING, PageRequest.of(page, pageSize)));
     }
 
+    @GetMapping("/admin/{id}")
+    @Operation(summary = "Get company detail for admin review")
+    public ApiResponse<CompanyDto> getCompanyForAdmin(@PathVariable Long id) {
+        return ApiResponse.success(companyService.getCompanyDetail(id));
+    }
+
     @PostMapping("/admin/verify/{id}")
     @Operation(summary = "Approve or reject a company (admin only)")
     public ApiResponse<CompanyDto> verifyCompany(
