@@ -1,0 +1,41 @@
+# Development overrides — use local JARs instead of building in Docker.
+#
+# Usage:
+#   1. mvn clean package -DskipTests
+#   2. docker compose up -d
+#
+# If Docker Hub is inaccessible, configure a mirror in Docker Desktop:
+#   Settings → Docker Engine → add "registry-mirrors": ["https://<your-mirror>"]
+# Common mirrors for China:
+#   https://docker.1ms.run
+#   https://docker.xuanyuan.me
+#   https://hub.rat.dev
+
+services:
+  auth-service:
+    volumes:
+      - ./backend/auth-service/target/auth-service-1.0.0-SNAPSHOT.jar:/app/app.jar:ro
+
+  profile-service:
+    volumes:
+      - ./backend/profile-service/target/profile-service-1.0.0-SNAPSHOT.jar:/app/app.jar:ro
+
+  company-service:
+    volumes:
+      - ./backend/company-service/target/company-service-1.0.0-SNAPSHOT.jar:/app/app.jar:ro
+
+  rating-service:
+    volumes:
+      - ./backend/rating-service/target/rating-service-1.0.0-SNAPSHOT.jar:/app/app.jar:ro
+
+  resume-service:
+    volumes:
+      - ./backend/resume-service/target/resume-service-1.0.0-SNAPSHOT.jar:/app/app.jar:ro
+
+  storage-service:
+    volumes:
+      - ./backend/storage-service/target/storage-service-1.0.0-SNAPSHOT.jar:/app/app.jar:ro
+
+  notification-service:
+    volumes:
+      - ./backend/notification-service/target/notification-service-1.0.0-SNAPSHOT.jar:/app/app.jar:ro

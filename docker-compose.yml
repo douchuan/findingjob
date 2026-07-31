@@ -20,6 +20,8 @@ services:
     build:
       context: .
       dockerfile: backend/auth-service/Dockerfile
+      args:
+        JAR_FILE: backend/auth-service/target/auth-service-1.0.0-SNAPSHOT.jar
     ports:
       - "8001:8001"
     environment:
@@ -31,7 +33,7 @@ services:
       postgres:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8001/actuator/health"]
+      test: ["CMD", "wget", "-qO-", "http://localhost:8001/actuator/health"]
       interval: 10s
       timeout: 3s
       retries: 5
@@ -40,6 +42,8 @@ services:
     build:
       context: .
       dockerfile: backend/profile-service/Dockerfile
+      args:
+        JAR_FILE: backend/profile-service/target/profile-service-1.0.0-SNAPSHOT.jar
     ports:
       - "8002:8002"
     environment:
@@ -51,7 +55,7 @@ services:
       postgres:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8002/actuator/health"]
+      test: ["CMD", "wget", "-qO-", "http://localhost:8002/actuator/health"]
       interval: 10s
       timeout: 3s
       retries: 5
@@ -60,6 +64,8 @@ services:
     build:
       context: .
       dockerfile: backend/company-service/Dockerfile
+      args:
+        JAR_FILE: backend/company-service/target/company-service-1.0.0-SNAPSHOT.jar
     ports:
       - "8003:8003"
     environment:
@@ -75,7 +81,7 @@ services:
       postgres:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8003/actuator/health"]
+      test: ["CMD", "wget", "-qO-", "http://localhost:8003/actuator/health"]
       interval: 10s
       timeout: 3s
       retries: 5
@@ -84,6 +90,8 @@ services:
     build:
       context: .
       dockerfile: backend/rating-service/Dockerfile
+      args:
+        JAR_FILE: backend/rating-service/target/rating-service-1.0.0-SNAPSHOT.jar
     ports:
       - "8004:8004"
     environment:
@@ -95,7 +103,7 @@ services:
       postgres:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8004/actuator/health"]
+      test: ["CMD", "wget", "-qO-", "http://localhost:8004/actuator/health"]
       interval: 10s
       timeout: 3s
       retries: 5
@@ -104,6 +112,8 @@ services:
     build:
       context: .
       dockerfile: backend/resume-service/Dockerfile
+      args:
+        JAR_FILE: backend/resume-service/target/resume-service-1.0.0-SNAPSHOT.jar
     ports:
       - "8005:8005"
     environment:
@@ -115,7 +125,7 @@ services:
       postgres:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8005/actuator/health"]
+      test: ["CMD", "wget", "-qO-", "http://localhost:8005/actuator/health"]
       interval: 10s
       timeout: 3s
       retries: 5
@@ -124,6 +134,8 @@ services:
     build:
       context: .
       dockerfile: backend/storage-service/Dockerfile
+      args:
+        JAR_FILE: backend/storage-service/target/storage-service-1.0.0-SNAPSHOT.jar
     ports:
       - "8006:8006"
     environment:
@@ -139,7 +151,7 @@ services:
       postgres:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8006/actuator/health"]
+      test: ["CMD", "wget", "-qO-", "http://localhost:8006/actuator/health"]
       interval: 10s
       timeout: 3s
       retries: 5
@@ -148,6 +160,8 @@ services:
     build:
       context: .
       dockerfile: backend/notification-service/Dockerfile
+      args:
+        JAR_FILE: backend/notification-service/target/notification-service-1.0.0-SNAPSHOT.jar
     ports:
       - "8007:8007"
     environment:
@@ -159,7 +173,7 @@ services:
       postgres:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8007/actuator/health"]
+      test: ["CMD", "wget", "-qO-", "http://localhost:8007/actuator/health"]
       interval: 10s
       timeout: 3s
       retries: 5
