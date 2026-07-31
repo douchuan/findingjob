@@ -40,7 +40,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             JwtUserPrincipal principal = new JwtUserPrincipal(
                     userId,
-                    UserRole.valueOf(role),
+                    UserRole.valueOf(role.toUpperCase()),
                     claims.get("phone", String.class)
             );
 

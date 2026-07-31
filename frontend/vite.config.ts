@@ -22,8 +22,32 @@ export default defineConfig({
   server: {
     port: 5173,
     proxy: {
-      '/api': {
+      '/api/auth': {
         target: 'http://localhost:8001',
+        changeOrigin: true,
+      },
+      '/api/profile': {
+        target: 'http://localhost:8002',
+        changeOrigin: true,
+      },
+      '/api/company': {
+        target: 'http://localhost:8003',
+        changeOrigin: true,
+      },
+      '/api/rating': {
+        target: 'http://localhost:8004',
+        changeOrigin: true,
+      },
+      '/api/resume': {
+        target: 'http://localhost:8005',
+        changeOrigin: true,
+      },
+      '/api/storage': {
+        target: 'http://localhost:8006',
+        changeOrigin: true,
+      },
+      '/api/notification': {
+        target: 'http://localhost:8007',
         changeOrigin: true,
       },
     },
