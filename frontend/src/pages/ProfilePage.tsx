@@ -4,7 +4,6 @@ import { UserOutlined, UploadOutlined, PlusOutlined, DeleteOutlined, GithubOutli
 import dayjs from 'dayjs';
 import { useAuthStore } from '../stores/authStore';
 import { get, put, post, del } from '../api';
-import { useAuthStore } from '../stores/authStore';
 import type { UploadProps } from 'antd';
 
 const { Text, Title } = Typography;

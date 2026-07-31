@@ -1,8 +1,8 @@
-FROM eclipse-temurin:17-jre-alpine
+FROM eclipse-temurin:17-jre
 WORKDIR /app
 ARG JAR_FILE
 COPY ${JAR_FILE} app.jar
-RUN addgroup -S findingjob && adduser -S findingjob -G findingjob
+RUN groupadd -r findingjob && useradd -r -g findingjob findingjob
 USER findingjob
 EXPOSE 8004
 HEALTHCHECK --interval=10s --timeout=3s --retries=5 \
