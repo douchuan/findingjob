@@ -17,7 +17,6 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
-        default_schema: profile
     show-sql: false
     open-in-view: false
 
